@@ -275,30 +275,70 @@ MRF Factorization $p(S,T,R,J) = frac{1}{Z}\phi(S,R,T)\phi(R,J)$:\\
 
 \subsection{3.1 Messages for the factor graph (5 pts)}
 \noindent \textbf{\underline{Concepts}}\\
-
+Factor graphs\\
+Message passing\\
 \noindent \textbf{\underline{Tutorial}}\\
-
+This question was pretty difficult for me as I have only been introduced to factor graphs once.  The main part to foucs on is the difference
+ between how messages are passed from node to factor vs factor to node.  If a message passes from a node to a factor then it will be combining
+ information that comes in from other factors, so it is a product of all messages going into the node that is passing to a factor.  If the
+ message goes from a factor to a ndoe then you will sum over all possible valeus of other variables, basicallyjust marginalize so that ou can
+ isolate the variable of interest.
 \noindent \textbf{\underline{Answer}}\\
-
+Start with the leaf nodes for simplicity, since they all equal 1\\
+\begin{align*}
+    m a -> f1(a) = 1\\
+    m b -> f1(b) = 1\\
+    m d -> f2(d) = 1\\
+\end{align*}
+Now we can do the factor to variable messages from c:\\
+\begin{align*}
+    m c -> f1(c) = m f2 -> c(c)\\
+    m c -> f2(c) = m f1 -> c(C)
+\end{align*}
+Then we can move on to factor to variable messages:\\
+\begin{align*}
+    m f1 -> a (a) = \sum_{b,c}f1(a,b,c)m_{b->f1}(b)m_{c->f1}(c)\\
+    m f1 -> b (b) = \sum_{a,c}f1(a,b,c)m_{a->f1}(a)m_{c->f1}(c)\\
+    m f1 -> c (c) = \sum_{a,b}f1(a,b,c)m_{a->f1}(a)m_{b->f1}(b)\\
+    m f2 -> c (c) = \sum_{d}f2(c,d)m_{d->f2}(d)\\
+    m f2 -> d (d) = \sum_{c}f2(c,d)m_{c->f2}(c)
+\end{align*}
 \subsection{3.2 Marginal expression (5 pts)}
 \noindent \textbf{\underline{Concepts}}\\
-
+Marginal probability/message passing\\
 \noindent \textbf{\underline{Tutorial}}\\
-
+This question is not too difficult once you have answered the first part, its just a matter of taking th eproduct of all messages that
+ come into node c and then normalizing by the sum of all messages that could come into c for all values of c.\\
 \noindent \textbf{\underline{Answer}}\\
-
+\begin{align*}
+    p(c) = \frac{m_{f1->c}(c)\,m_{f2->c}(c)}{\sum_{c}m_{f1->c}(c)\,m_{f2->c}(c)}
+\end{align*}
 \subsection{3.3 Verify marginal by substitution (5 pts)}
 \noindent \textbf{\underline{Concepts}}\\
-
+n/a\\
 \noindent \textbf{\underline{Tutorial}}\\
-
+Just substitute the values that you wrote out in 3.1 into 3.2 then simplify, ignoring the normalizing value in the denominator.  Also
+ do not forget that the messages for leaf nodes are 1 like we stated above, it took a while for you to realize this.\\
 \noindent \textbf{\underline{Answer}}\\
-
+\begin{align*}
+    p(c)    &= m_{f1->c}(c)\,m_{f2->c}(c)\\
+            &= \sum_{a,b}f1(a,b,c)m_{a->f1}(a)m_{b->f1}(b)\,\sum_{d}f2(c,d)m_{d->f2}(d)\\
+            &= \sum_{a,b}f1(a,b,c)\,\sum_{d}f2(c,d)\\
+            &= \sum_{a,b,d}f1(a,b,c)f2(c,d) &&\text{Combine independent factors to single sum}\\
+\end{align*}
+this is equal to the full joint probabilty because our graph has two factors, one around f1 and one around f2.  F1 is connected to a,b,d
+ and f2 is connected to c,d, so the above equation is equalt to the product of the two factorized fucntions that create our full graph.\\
 \subsection{3.4 Add a loop: consequences for sum-product (5 pts)}
 \noindent \textbf{\underline{Concepts}}\\
-
+looping in factor graphs\\
 \noindent \textbf{\underline{Tutorial}}\\
-
+Again factor graphs are not an area where I am super confident in so just try to look at the algebra to start.  Since b is no longer a leaf
+ node you cannot set the messages passing from b to f1 as 1, and we also have to contend with messages coming from b to f2 as well as from
+ f2 to b.  This just means that messages are no longer uniquely determine by a single sweep through the graph, but now are dependant on one
+ another due to a sort of feedback loop.\\
 \noindent \textbf{\underline{Answer}}\\
-
+The sum product algorith mcan still be applied, but now that there is a cycle in the graph we can no longer say messages from b to f1 = 1.
+ Instead we have a loop here, so we can no longer rely on simple algebra to simplify our equation.  The algorithm is not garunteed to
+ converge to a value in this case, as it could possibly keep propogating the message along the loop forever.  And even if it does converge
+ then it would likely not even be the exact value but instead an approxmion due to this new dependance.
 \end{document}
