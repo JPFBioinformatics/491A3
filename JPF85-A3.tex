@@ -71,7 +71,8 @@ just make sure you save the change in energy at each pass then plot it.\\
 coding\\
 \noindent \textbf{\underline{Tutorial}}\\
 just make sure you save the image at start mid and end then plot it.\\
-\\noindent \textbf{\underline{Answer}} The origonal figure is Grid.jpg\\
+\noindent \textbf{\underline{Answer}} The origonal figure is Grid.jpg, honestly I don't know how to
+ get the denoising to work better for some reason it will not get better than what I have right now.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{denoise_start.png}
@@ -136,11 +137,9 @@ For this question it is really just a matter of reviewing how to convert a Bayes
 ]
 \node (a) {a};
 \node (b) [right=of a] {b};
-
 \node (c) [below left=of a] {c};
 \node (d) [below=of a, xshift=8mm] {d};
 \node (e) [below right=of b] {e};
-
 \node (f) [below=of c] {f};
 \node (g) [below=of d] {g};
 \node (h) [below=of e, xshift=-16mm] {h};
@@ -166,25 +165,140 @@ Bayes Nets\\
 \noindent \textbf{\underline{Tutorial}}\\
 For this question it is really just a matter of reviewing factor graphs.  Basically they are just bipartite graphs where you generat a node in the bipartite graph for each
  node in the bayes net, and another node for each joint probability.  Then these joint probability nodes are used to connect parents to children and you just have to write
- out the joint probabilty using these factor functions, which are just $p(x \mid parents(x))$
+ out the joint probabilty using these factor functions, which are just $p(x \mid parents(x))$.\\
 
 \noindent \textbf{\underline{Answer}}\\
+A factor graph is just a bipartite graph of nodes to functions, so we can create a set of our origonal
+ nodes A-G and our factor functions, $p(x \mid parents(x))$.\\
+\begin{tikzpicture}[
+    var/.style={circle, draw, minimum size=8mm},
+    fac/.style={rectangle, draw, minimum size=5mm, fill=black!20},
+    node distance=14mm and 18mm
+]
+\node[var] (a) {$a$};
+\node[var] (b) [right=of a] {$b$};
+\node[var] (c) [below=of a] {$c$};
+\node[var] (d) [right=of c] {$d$};
+\node[var] (e) [right=of d] {$e$};
+\node[var] (f) [below=of c] {$f$};
+\node[var] (g) [below=of d] {$g$};
+\node[var] (h) [below=of e] {$h$};
+
+\node[fac] (fa) [above=of a] {$P(a)$};
+\node[fac] (fb) [above=of b] {$P(b)$};
+\node[fac] (fc) [left=of c] {$P(c|a)$};
+\node[fac] (fd) [above=of d] {$P(d|a,b)$};
+\node[fac] (fe) [right=of e] {$P(e|b)$};
+\node[fac] (ff) [left=of f] {$P(f|c)$};
+\node[fac] (fg) [below=of g] {$P(g|d)$};
+\node[fac] (fh) [right=of h] {$P(h|d)$};
+
+\draw (a) -- (fa);
+\draw (b) -- (fb);
+\draw (a) -- (fc);
+\draw (c) -- (fc);
+\draw (a) -- (fd);
+\draw (b) -- (fd);
+\draw (d) -- (fd);
+\draw (b) -- (fe);
+\draw (e) -- (fe);
+\draw (c) -- (ff);
+\draw (f) -- (ff);
+\draw (d) -- (fg);
+\draw (g) -- (fg);
+\draw (d) -- (fh);
+\draw (h) -- (fh);
+\end{tikzpicture}
 
 \subsection{2.3 Two different factor graphs for sprinkler Bayes net (5 pts)}
+\noindent \textbf{\underline{Concepts}}\\
+Factor Graphs\\
+Bayes Nets\\
+\noindent \textbf{\underline{Tutorial}}\\
+This question was somewhat difficult, as I did not know too much about factor graphs before this class.
+ However, if we look at the bayes net as the origonal net, and as a MRF factorization we realize we can
+ create a factor graph using the origonal bayes net factorization $p(x \mid parents(x))$ and the MRF
+ clique factorization $\phi(x)$.\\
 
+\noindent \textbf{\underline{Answer}}\\
+We factor the graph as a bayes net and as a MRF factorziation of cliques to get two extremely similar,
+ but distinct graphs.\\
+Bayes Net Factorization $p(S,T,R,J) = p(S)\,p(R)\,p(J \mid R)\,p(T \mid R,S)$:\\
+\begin{tikzpicture}[
+  var/.style={circle, draw, minimum size=8mm},
+  fac/.style={rectangle, draw, minimum size=6mm, fill=black!20},
+  node distance=16mm and 18mm
+]
+\node[var] (S) {$S$};
+\node[var] (R) [right=of S] {$R$};
+\node[var] (T) [below=of S, xshift=10mm] {$T$};
+\node[var] (J) [below=of R] {$J$};
+
+\node[fac] (fS) [above=of S] {$P(S)$};
+\node[fac] (fR) [above=of R] {$P(R)$};
+\node[fac] (fT) [below=of T] {$P(T\mid S,R)$};
+\node[fac] (fJ) [right=of J] {$P(J\mid R)$};
+
+\draw (S) -- (fS);
+\draw (R) -- (fR);
+\draw (S) -- (fT);
+\draw (R) -- (fT);
+\draw (T) -- (fT);
+\draw (R) -- (fJ);
+\draw (J) -- (fJ);
+
+\end{tikzpicture}
+
+MRF Factorization $p(S,T,R,J) = frac{1}{Z}\phi(S,R,T)\phi(R,J)$:\\
+\begin{tikzpicture}[
+  var/.style={circle, draw, minimum size=8mm},
+  fac/.style={rectangle, draw, minimum size=6mm, fill=black!20},
+  node distance=16mm and 18mm
+]
+\node[var] (S) {$S$};
+\node[var] (R) [right=of S] {$R$};
+\node[var] (T) [below=of S, xshift=10mm] {$T$};
+\node[var] (J) [below=of R] {$J$};
+
+\node[fac] (fSRT) [below=of T] {$\phi(S,R,T)$};
+\node[fac] (fRJ)  [right=of J] {$\phi(R,J)$};
+
+\draw (S) -- (fSRT);
+\draw (R) -- (fSRT);
+\draw (T) -- (fSRT);
+\draw (R) -- (fRJ);
+\draw (J) -- (fRJ);
+
+\end{tikzpicture}
 
 \section{Exercise 3: The Sum-Product Algorithm (20 pts)}
 
 \subsection{3.1 Messages for the factor graph (5 pts)}
-% Write all factor-to-variable and variable-to-factor messages symbolically.
+\noindent \textbf{\underline{Concepts}}\\
+
+\noindent \textbf{\underline{Tutorial}}\\
+
+\noindent \textbf{\underline{Answer}}\\
 
 \subsection{3.2 Marginal expression (5 pts)}
-% Express the requested marginal in terms of messages.
+\noindent \textbf{\underline{Concepts}}\\
+
+\noindent \textbf{\underline{Tutorial}}\\
+
+\noindent \textbf{\underline{Answer}}\\
 
 \subsection{3.3 Verify marginal by substitution (5 pts)}
-% Substitute message definitions and show it matches.
+\noindent \textbf{\underline{Concepts}}\\
+
+\noindent \textbf{\underline{Tutorial}}\\
+
+\noindent \textbf{\underline{Answer}}\\
 
 \subsection{3.4 Add a loop: consequences for sum-product (5 pts)}
-% Discuss loopy belief propagation: convergence, exactness, when it can still be used.
+\noindent \textbf{\underline{Concepts}}\\
+
+\noindent \textbf{\underline{Tutorial}}\\
+
+\noindent \textbf{\underline{Answer}}\\
 
 \end{document}
